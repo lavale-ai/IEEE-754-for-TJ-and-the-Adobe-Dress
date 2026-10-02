@@ -34,7 +34,7 @@ float ieee_754(uint32_t const data) {
     uint32_t exponent = (data >> 23U) & 0b11111111U;
 
     // Extract the 23-bit mantissa.
-    uint32_t mantissa = data & 0b01111111111111111111111U;
+    uint32_t mantissa = data & 0b0111111111111111111111111U;
 
     // Handle zero and denormalized numbers.
     if (exponent == 0U) {
