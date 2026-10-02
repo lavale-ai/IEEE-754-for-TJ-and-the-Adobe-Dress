@@ -26,10 +26,81 @@ uint8_t const bias = 127U;
  * Students should create or add any functions or classes they may need.
  */
 float ieee_754(uint32_t const data) {
-    float value;
-    // This will fail the tests. Students should do the proper IEEE-754 calculation per assignment
-    // using the 32 bit 'data' value passed into this function.
-    value = 1.23;
+
+    // Extract the sign bit.
+    uint32_t sign = (data >> 31U) & 0b1U;
+
+    // Extract the 8-bit exponent.
+    uint32_t exponent = (data >> 23U) & 0b11111111U;
+
+    // Extract the 23-bit mantissa.
+    uint32_t mantissa = data & 0b01111111111111111111111U;
+
+    // Handle zero and denormalized numbers.
+    if (exponent == 0U) {
+
+        float value = 0.0f;
+        float bit_value = 0.5f;
+
+        for (uint32_t i = 0U; i < 23U; i++) {
+            if ((mantissa >> (22U - i)) & 0b1U) {
+                value += bit_value;
+            }
+            bit_value *= 0.5f;
+        }
+
+        // Denormalized numbers use an exponent of -126.
+        for (int i = 0; i < 126; i++) {
+            value *= 0.5f;
+        }
+
+        if (sign == 1U) {
+            value = -value;
+        }
+
+        return value;
+    }
+
+    // Handle infinity and NaN.
+    if (exponent == 255U) {
+        if (mantissa == 0U) {
+            if (sign == 1U) {
+                return -numeric_limits<float>::infinity();
+            }
+            return numeric_limits<float>::infinity();
+        }
+
+        return numeric_limits<float>::quiet_NaN();
+    }
+
+    // Normalized number.
+    float value = 1.0f;
+    float bit_value = 0.5f;
+
+    for (uint32_t i = 0U; i < 23U; i++) {
+        if ((mantissa >> (22U - i)) & 0b1U) {
+            value += bit_value;
+        }
+        bit_value *= 0.5f;
+    }
+
+    int actual_exponent = exponent - bias;
+
+    if (actual_exponent > 0) {
+        for (int i = 0; i < actual_exponent; i++) {
+            value *= 2.0f;
+        }
+    }
+    else if (actual_exponent < 0) {
+        for (int i = 0; i > actual_exponent; i--) {
+            value *= 0.5f;
+        }
+    }
+
+    if (sign == 1U) {
+        value = -value;
+    }
+
     return value;
 }
 
