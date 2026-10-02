@@ -28,7 +28,7 @@ uint8_t const bias = 127U;
 float ieee_754(uint32_t const data) {
 
     // Extract the sign bit.
-    uint32_t sign = (data >> 31U) & 0b1U;
+   uint32_t sign = (data >> 31U) & 0b1U;
 
     // Extract the 8-bit exponent.
     uint32_t exponent = (data >> 23U) & 0b11111111U;
